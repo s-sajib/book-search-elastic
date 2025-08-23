@@ -1,8 +1,8 @@
-import SearchSummary from "@/app/combined-search/components/search-summary";
-import SearchForm from "./components/search-form";
-import SearchResults from "./components/search-result";
-import { BOOKS_INDEX, client } from "@/lib/elasticsearch";
 import AutocompleteSearch from "@/app/combined-search/components/auto-complete-search";
+import SearchSummary from "@/app/combined-search/components/search-summary";
+import { BOOKS_INDEX, client } from "@/lib/elasticsearch";
+import AnalyticsTracker from "./components/analytics-tracker";
+import SearchResults from "./components/search-result";
 
 interface SearchPageProps {
   searchParams: {
@@ -57,7 +57,7 @@ async function searchBooks(query: string, genre?: string) {
     };
   }
 
-  return await client.search({
+  const results = await client.search({
     index: BOOKS_INDEX,
     body: {
       query: searchQuery,
@@ -98,6 +98,8 @@ async function searchBooks(query: string, genre?: string) {
       },
     },
   });
+
+  return results;
 }
 
 // Update the component
@@ -110,6 +112,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Book Search</h1>
+
+      {/* Analytics tracking (client-side only) */}
+      <AnalyticsTracker
+        query={query}
+        resultsCount={results.hits.total?.value || 0}
+      />
 
       {/* <SearchForm initialQuery={query} initialGenre={genre} /> */}
       <AutocompleteSearch initialQuery={query} initialGenre={genre} />

@@ -8,27 +8,8 @@ interface Suggestion {
   matches: Array<{ title: string; author: string; type: string }>;
 }
 
-interface AutocompleteSearchProps {
-  initialQuery: string;
-  initialGenre?: string;
-}
-
-const GENRES = [
-  "Fiction",
-  "Classic",
-  "Fantasy",
-  "Young Adult",
-  "Romance",
-  "Drama",
-  "Adventure",
-];
-
-export default function AutocompleteSearch({
-  initialQuery,
-  initialGenre = "",
-}: AutocompleteSearchProps) {
-  const [query, setQuery] = useState(initialQuery);
-  const [genre, setGenre] = useState(initialGenre);
+export default function HomeSearchBar() {
+  const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -37,7 +18,6 @@ export default function AutocompleteSearch({
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Fetch suggestions on query change
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (query.length < 2) {
@@ -65,7 +45,6 @@ export default function AutocompleteSearch({
     return () => clearTimeout(debounceTimer);
   }, [query]);
 
-  // Handle clicks outside to close suggestions
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -82,14 +61,8 @@ export default function AutocompleteSearch({
   }, []);
 
   const handleSearch = (searchQuery: string = query) => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("q", searchQuery);
-    if (genre) params.set("genre", genre);
-
-    const url = params.toString()
-      ? `/combined-search?${params.toString()}`
-      : "/combined-search";
-    router.push(url);
+    if (!searchQuery.trim()) return;
+    router.push(`/combined-search?q=${encodeURIComponent(searchQuery)}`);
     setShowSuggestions(false);
   };
 
@@ -100,57 +73,49 @@ export default function AutocompleteSearch({
 
   const selectSuggestion = (suggestion: string) => {
     setQuery(suggestion);
-    // Track suggestion click
+
     fetch("/api/analytics", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         type: "suggestion_click",
         query: suggestion,
-        results_count: 0, // Will be counted in actual search
+        results_count: 0,
         timestamp: new Date().toISOString(),
       }),
-    }).catch(() => {}); // Silent fail
+    }).catch(() => {});
+
     handleSearch(suggestion);
   };
 
   return (
-    <div className="relative mb-8">
-      <form onSubmit={handleSubmit} className="flex gap-4 mb-4">
-        {/* Search Input with Autocomplete */}
-        <div className="flex-1 relative">
+    <div className="relative w-full max-w-2xl mx-auto">
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        <div className="relative flex-1">
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => suggestions && setShowSuggestions(true)}
-            placeholder="Search books, authors, descriptions..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2
-  focus:ring-blue-500 focus:border-transparent"
+            placeholder="Search for books, authors..."
+            className="w-full p-3 border-2 border-gray-800 rounded text-base"
           />
 
-          {/* Loading indicator */}
           {loading && (
-            <div className="absolute right-3 top-3">
-              <div
-                className="animate-spin rounded-full h-5 w-5 border-b-2
-  border-blue-500"
-              ></div>
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              Loading...
             </div>
           )}
 
-          {/* Suggestions Dropdown */}
           {showSuggestions && suggestions && (
             <div
               ref={suggestionsRef}
-              className="absolute top-full left-0 right-0  border
-  border-gray-200 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto z-50 bg-zinc-900"
+              className="absolute top-full left-0 right-0 border border-gray-800 rounded mt-1 max-h-96 overflow-y-auto z-50 bg-zinc-900"
             >
-              {/* Spelling Corrections */}
               {suggestions.corrections &&
                 suggestions.corrections.length > 0 && (
-                  <div className="p-3 border-b border-gray-100">
+                  <div className="p-3 border-b border-gray-300">
                     <div className="text-xs text-gray-500 mb-2">
                       Did you mean?
                     </div>
@@ -160,16 +125,14 @@ export default function AutocompleteSearch({
                         <div
                           key={index}
                           onClick={() => selectSuggestion(correction.text)}
-                          className="cursor-pointer hover:border p-2 rounded text-sm
-  text-blue-600"
+                          className="cursor-pointer p-2 text-sm border border-gray-400 hover:border-gray-600 rounded mb-1"
                         >
-                          🔍 {correction.text}
+                          {correction.text}
                         </div>
                       ))}
                   </div>
                 )}
 
-              {/* Book Matches */}
               {suggestions.matches && suggestions.matches.length > 0 && (
                 <div className="p-3">
                   <div className="text-xs text-gray-500 mb-2">Suggestions</div>
@@ -177,10 +140,10 @@ export default function AutocompleteSearch({
                     <div
                       key={index}
                       onClick={() => selectSuggestion(match.title)}
-                      className="cursor-pointer hover:border p-2 rounded text-sm"
+                      className="cursor-pointer p-2 text-sm border border-gray-300 hover:border-gray-500 rounded mb-1"
                     >
-                      <div className="font-medium">{match.title}</div>
-                      <div className="text-gray-500 text-xs">
+                      <div className="font-bold">{match.title}</div>
+                      <div className="text-xs text-gray-600">
                         by {match.author}
                       </div>
                     </div>
@@ -188,11 +151,10 @@ export default function AutocompleteSearch({
                 </div>
               )}
 
-              {/* No suggestions */}
               {(!suggestions.corrections ||
                 suggestions.corrections.length === 0) &&
                 (!suggestions.matches || suggestions.matches.length === 0) && (
-                  <div className="p-3 text-gray-500 text-sm">
+                  <div className="p-3 text-sm text-gray-500">
                     No suggestions found
                   </div>
                 )}
@@ -200,44 +162,13 @@ export default function AutocompleteSearch({
           )}
         </div>
 
-        {/* Genre Filter */}
-        <select
-          value={genre}
-          onChange={(e) => setGenre(e.target.value)}
-          className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2
-  focus:ring-blue-500"
-        >
-          <option value="">All Genres</option>
-          {GENRES.map((g) => (
-            <option key={g} value={g}>
-              {g}
-            </option>
-          ))}
-        </select>
-
         <button
           type="submit"
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700
-  focus:ring-2 focus:ring-blue-500"
+          className="px-6 py-3 bg-gray-800 text-white rounded text-base hover:bg-gray-600"
         >
           Search
         </button>
       </form>
-
-      {/* Clear filters */}
-      {(query || genre) && (
-        <button
-          type="button"
-          onClick={() => {
-            setQuery("");
-            setGenre("");
-            router.push("/combined-search");
-          }}
-          className="text-sm text-gray-500 hover:text-gray-700"
-        >
-          Clear all filters
-        </button>
-      )}
     </div>
   );
 }
