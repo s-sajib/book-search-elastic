@@ -1,3 +1,4 @@
+import SearchSummary from "@/app/combined-search/components/search-summary";
 import SearchForm from "./components/search-form";
 import SearchResults from "./components/search-result";
 import { BOOKS_INDEX, client } from "@/lib/elasticsearch";
@@ -60,6 +61,40 @@ async function searchBooks(query: string, genre?: string) {
     body: {
       query: searchQuery,
       size: 10,
+
+      aggs: {
+        genres: {
+          terms: {
+            field: "genre",
+            size: 10,
+          },
+        },
+        avg_rating: {
+          avg: {
+            field: "rating",
+          },
+        },
+        price_ranges: {
+          range: {
+            field: "price",
+            ranges: [
+              { key: "Under $15", to: 15 },
+              { key: "$15-$20", from: 15, to: 20 },
+              { key: "Over $20", from: 20 },
+            ],
+          },
+        },
+        publish_years: {
+          range: {
+            field: "publishYear",
+            ranges: [
+              { key: "Classic (Before 1950)", to: 1950 },
+              { key: "Mid-Century (1950-1990)", from: 1950, to: 1990 },
+              { key: "Modern (1990+)", from: 1990 },
+            ],
+          },
+        },
+      },
     },
   });
 }
@@ -77,6 +112,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <SearchForm initialQuery={query} initialGenre={genre} />
 
+      <SearchSummary
+        aggregations={results.aggregations || {}}
+        total={results.hits.total?.value || 0}
+        query={query}
+        genre={genre}
+      />
       <SearchResults
         results={results.hits.hits}
         total={results.hits.total?.value || 0}

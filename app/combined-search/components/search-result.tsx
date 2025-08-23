@@ -34,28 +34,6 @@ export default function SearchResults({
 
   return (
     <div>
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold">
-          Found {total} book{total !== 1 ? "s" : ""} for "{query}"
-        </h2>
-        {(query || genre) && (
-          <div className="mb-4 text-sm text-gray-600">
-            Filters:
-            {query && (
-              <span className="ml-2 px-2 py-1 bg-gray-100 rounded">
-                Text: "{query}"
-              </span>
-            )}
-            {genre && (
-              <span className="ml-2 px-2 py-1 bg-blue-100 rounded">
-                Genre:
-                {genre}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-
       <div className="space-y-6">
         {results.map((hit) => {
           const book = hit._source;
