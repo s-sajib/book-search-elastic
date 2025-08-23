@@ -2,6 +2,7 @@ import SearchSummary from "@/app/combined-search/components/search-summary";
 import SearchForm from "./components/search-form";
 import SearchResults from "./components/search-result";
 import { BOOKS_INDEX, client } from "@/lib/elasticsearch";
+import AutocompleteSearch from "@/app/combined-search/components/auto-complete-search";
 
 interface SearchPageProps {
   searchParams: {
@@ -110,8 +111,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Book Search</h1>
 
-      <SearchForm initialQuery={query} initialGenre={genre} />
-
+      {/* <SearchForm initialQuery={query} initialGenre={genre} /> */}
+      <AutocompleteSearch initialQuery={query} initialGenre={genre} />
       <SearchSummary
         aggregations={results.aggregations || {}}
         total={results.hits.total?.value || 0}
