@@ -5,9 +5,10 @@ import { useEffect } from 'react'
 interface AnalyticsTrackerProps {
   query: string
   resultsCount: number
+  searchTime?: number
 }
 
-export default function AnalyticsTracker({ query, resultsCount }: AnalyticsTrackerProps) {
+export default function AnalyticsTracker({ query, resultsCount, searchTime }: AnalyticsTrackerProps) {
   useEffect(() => {
     if (!query || !query.trim()) return
 
@@ -19,6 +20,7 @@ export default function AnalyticsTracker({ query, resultsCount }: AnalyticsTrack
         type: 'search',
         query: query.trim(),
         results_count: resultsCount,
+        search_time: searchTime || 0,
         timestamp: new Date().toISOString()
       })
     }).catch(error => {

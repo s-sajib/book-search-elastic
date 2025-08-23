@@ -20,6 +20,7 @@ async function ensureAnalyticsIndex() {
                 },
               },
               results_count: { type: "integer" },
+              search_time: { type: "float" }, // Search timing in seconds
               timestamp: { type: "date" }, // Time-series data
               user_agent: { type: "keyword" },
               ip: { type: "ip" }, // IP field type for geo analysis
@@ -42,6 +43,7 @@ export async function POST(request: Request) {
       type,
       query,
       results_count,
+      search_time,
       timestamp = new Date().toISOString(),
     } = body;
 
@@ -55,6 +57,7 @@ export async function POST(request: Request) {
         type,
         query,
         results_count,
+        search_time: search_time || 0,
         timestamp,
         user_agent: request.headers.get("user-agent") || "unknown",
         ip:
@@ -126,6 +129,11 @@ export async function GET() {
               field: "results_count", // Average results per search
             },
           },
+          avg_search_time: {
+            avg: {
+              field: "search_time", // Average search time
+            },
+          },
         },
         size: 0, // Only aggregations, no hits
       },
@@ -137,6 +145,7 @@ export async function GET() {
         response.aggregations?.searches_over_time?.buckets || [],
       total_unique_searches: response.aggregations?.total_searches?.value || 0,
       avg_results_per_search: response.aggregations?.avg_results?.value || 0,
+      avg_search_time: response.aggregations?.avg_search_time?.value || 0,
     });
   } catch (error: any) {
     // Analytics index might not exist yet or no data
@@ -146,6 +155,7 @@ export async function GET() {
       searches_over_time: [],
       total_unique_searches: 0,
       avg_results_per_search: 0,
+      avg_search_time: 0,
     });
   }
 }

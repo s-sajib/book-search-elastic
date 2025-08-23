@@ -1,12 +1,20 @@
 import { client, BOOKS_INDEX } from "@/lib/elasticsearch";
 
 export async function GET(request: Request) {
+  const startTime = performance.now();
+  
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get("q") || "";
 
     if (!query || query.length < 2) {
-      return Response.json({ suggestions: [] });
+      return Response.json({ 
+        suggestions: [],
+        timing: {
+          total: 0,
+          elasticsearch: 0
+        }
+      });
     }
 
     // Get autocomplete suggestions
@@ -70,11 +78,18 @@ export async function GET(request: Request) {
       type: "match",
     }));
 
+    const endTime = performance.now();
+    const totalTime = ((endTime - startTime) / 1000).toFixed(3);
+
     return Response.json({
       suggestions: {
         corrections: [...titleSuggestions, ...authorSuggestions],
         matches: matchSuggestions,
       },
+      timing: {
+        total: parseFloat(totalTime),
+        elasticsearch: response.took || 0
+      }
     });
   } catch (error: any) {
     return Response.json(

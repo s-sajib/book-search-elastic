@@ -12,8 +12,14 @@ interface SearchPageProps {
 }
 
 async function searchBooks(query: string, genre?: string) {
+  const startTime = performance.now();
+  
   if (!query && !genre) {
-    return { hits: { hits: [], total: { value: 0 } } };
+    return { 
+      hits: { hits: [], total: { value: 0 } },
+      took: 0,
+      search_time: 0
+    };
   }
 
   // Build the Elasticsearch query
@@ -99,7 +105,13 @@ async function searchBooks(query: string, genre?: string) {
     },
   });
 
-  return results;
+  const endTime = performance.now();
+  const searchTime = ((endTime - startTime) / 1000).toFixed(3);
+
+  return {
+    ...results,
+    search_time: parseFloat(searchTime)
+  };
 }
 
 // Update the component
@@ -117,6 +129,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <AnalyticsTracker
         query={query}
         resultsCount={results.hits.total?.value || 0}
+        searchTime={results.search_time}
       />
 
       {/* <SearchForm initialQuery={query} initialGenre={genre} /> */}
@@ -126,6 +139,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         total={results.hits.total?.value || 0}
         query={query}
         genre={genre}
+        searchTime={results.search_time}
+        esTime={results.took}
       />
       <SearchResults
         results={results.hits.hits}

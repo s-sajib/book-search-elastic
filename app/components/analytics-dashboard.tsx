@@ -18,6 +18,7 @@ interface AnalyticsData {
   searches_over_time: SearchOverTime[];
   total_unique_searches: number;
   avg_results_per_search: number;
+  avg_search_time: number;
 }
 
 export default function AnalyticsDashboard() {
@@ -56,7 +57,7 @@ export default function AnalyticsDashboard() {
         Search Analytics Dashboard
       </h2>
 
-      <div className="grid grid-cols-3 gap-5 mb-8">
+      <div className="grid grid-cols-4 gap-5 mb-8">
         <div className="p-4 border-2 border-gray-600 shadow-lg">
           <h3 className="text-lg mb-3 font-bold">Total Stats</h3>
           <div className="text-3xl font-black">
@@ -88,6 +89,14 @@ export default function AnalyticsDashboard() {
           <div className="text-sm text-gray-700 font-medium">
             Total Searches
           </div>
+        </div>
+
+        <div className="p-4 border-2 border-gray-600 shadow-lg">
+          <h3 className="text-lg mb-3 font-bold">Avg Speed</h3>
+          <div className="text-3xl font-black">
+            {analytics.avg_search_time.toFixed(4)}s
+          </div>
+          <div className="text-sm text-gray-700 font-medium">Search Time</div>
         </div>
       </div>
 

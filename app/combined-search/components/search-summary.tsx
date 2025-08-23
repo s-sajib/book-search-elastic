@@ -18,6 +18,8 @@ interface SearchSummaryProps {
   total: number;
   query?: string;
   genre?: string;
+  searchTime?: number;
+  esTime?: number;
 }
 
 export default function SearchSummary({
@@ -25,6 +27,8 @@ export default function SearchSummary({
   total,
   query,
   genre,
+  searchTime,
+  esTime,
 }: SearchSummaryProps) {
   if (total === 0) return null;
 
@@ -86,21 +90,30 @@ export default function SearchSummary({
       </div>
 
       {/* Search Context */}
-      {(query || genre) && (
-        <div className="mt-4 text-sm text-gray-600">
+      <div className="mt-4 text-sm text-gray-600 border-t border-gray-300 pt-3">
+        <div className="flex flex-wrap items-center gap-4">
           {query && (
             <span>
               Searching for: <strong>"{query}"</strong>
             </span>
           )}
-          {query && genre && <span> • </span>}
           {genre && (
             <span>
               Filtered by: <strong>{genre}</strong>
             </span>
           )}
+          {searchTime && (
+            <span className="font-bold text-green-700 border border-green-400 px-2 py-1 rounded">
+              Total time: {searchTime}s
+            </span>
+          )}
+          {esTime && (
+            <span className="font-bold text-blue-700 border border-blue-400 px-2 py-1 rounded">
+              ES time: {esTime}ms
+            </span>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
