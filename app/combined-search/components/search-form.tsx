@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 interface SearchFormProps {
@@ -8,23 +8,42 @@ interface SearchFormProps {
   initialGenre?: string;
 }
 
-const GENRES = [
-  "Fiction",
-  "Classic",
-  "Fantasy",
-  "Young Adult",
-  "Romance",
-  "Drama",
-  "Adventure",
-];
-
 export default function SearchForm({
   initialQuery,
   initialGenre = "",
 }: SearchFormProps) {
   const [query, setQuery] = useState(initialQuery);
   const [genre, setGenre] = useState(initialGenre);
+  const [genres, setGenres] = useState<string[]>([]);
+  const [isLoadingGenres, setIsLoadingGenres] = useState(true);
   const router = useRouter();
+
+  // Fetch genres from API on component mount
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        setIsLoadingGenres(true);
+        const response = await fetch("/api/genres");
+        const data = await response.json();
+        
+        if (data.status === "success") {
+          setGenres(data.genres || []);
+        } else {
+          console.error("Failed to fetch genres:", data.message);
+          // Fallback to empty array
+          setGenres([]);
+        }
+      } catch (error) {
+        console.error("Error fetching genres:", error);
+        // Fallback to empty array
+        setGenres([]);
+      } finally {
+        setIsLoadingGenres(false);
+      }
+    };
+
+    fetchGenres();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,11 +80,14 @@ export default function SearchForm({
         <select
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
+          disabled={isLoadingGenres}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2
-  focus:ring-blue-500"
+  focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <option value="">All Genres</option>
-          {GENRES.map((g) => (
+          <option value="">
+            {isLoadingGenres ? "Loading genres..." : "All Genres"}
+          </option>
+          {genres.map((g) => (
             <option key={g} value={g}>
               {g}
             </option>
