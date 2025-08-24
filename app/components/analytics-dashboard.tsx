@@ -37,7 +37,7 @@ export default function AnalyticsDashboard() {
 
   if (loading) {
     return (
-      <div className="p-5 text-center border border-black bg-gray-100 m-5">
+      <div className="p-5 text-center border m-5">
         <div className="text-lg">Loading analytics...</div>
       </div>
     );

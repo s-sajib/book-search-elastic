@@ -36,7 +36,7 @@ export default function AutocompleteSearch({
         setIsLoadingGenres(true);
         const response = await fetch("/api/genres");
         const data = await response.json();
-        
+
         if (data.status === "success") {
           setGenres(data.genres || []);
         } else {
@@ -178,7 +178,7 @@ export default function AutocompleteSearch({
                           key={index}
                           onClick={() => selectSuggestion(correction.text)}
                           className="cursor-pointer hover:border p-2 rounded text-sm
-  text-blue-600"
+  text-blue-400"
                         >
                           🔍 {correction.text}
                         </div>

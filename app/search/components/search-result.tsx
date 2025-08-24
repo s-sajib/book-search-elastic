@@ -51,7 +51,7 @@ export default function SearchResults({
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-xl font-bold text-blue-600 mb-2">
+                  <h3 className="text-xl font-bold text-blue-400 mb-2">
                     {book.title}
                   </h3>
                   <p className="text-gray-600 mb-2">
@@ -75,7 +75,7 @@ export default function SearchResults({
                   {book.genre.map((g) => (
                     <span
                       key={g}
-                      className="px-3 py-1 bg-blue-100 text-blue-800 text-sm
+                      className="px-3 py-1 bg-blue-100 text-blue-200 text-sm
   rounded-full"
                     >
                       {g}

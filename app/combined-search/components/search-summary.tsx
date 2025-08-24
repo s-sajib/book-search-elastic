@@ -40,14 +40,14 @@ export default function SearchSummary({
 
   return (
     <div className="border border-blue-200 rounded-lg p-6 mb-6">
-      <h3 className="text-lg font-semibold text-blue-800 mb-4">
+      <h3 className="text-lg font-semibold text-blue-200 mb-4">
         Search Summary
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
         {/* Total Results */}
         <div className="border border-primary rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-blue-600">{total}</div>
+          <div className="text-2xl font-bold text-blue-400">{total}</div>
           <div className="text-gray-600">Books Found</div>
         </div>
 
@@ -108,7 +108,7 @@ export default function SearchSummary({
             </span>
           )}
           {esTime && (
-            <span className="font-bold text-blue-700 border border-blue-400 px-2 py-1 rounded">
+            <span className="font-bold text-blue-300 border border-blue-400 px-2 py-1 rounded">
               ES time: {esTime}ms
             </span>
           )}
